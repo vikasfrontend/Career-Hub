@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   FaHome,
@@ -10,18 +10,37 @@ import {
   FaUser,
   FaClipboardList,
   FaCog,
-  FaSignOutAlt
+  FaSignOutAlt,
+  FaBell,
+  FaChevronDown,
+  FaSearch
 } from "react-icons/fa";
 import HeroImage from "../assets/hero.svg";
-import {
-  FaBell,
-  FaChevronDown
-} from "react-icons/fa";
 import { auth } from "../firebase";
-import { FaSearch } from "react-icons/fa";
 
 function Dashboard() {
-    const user = auth.currentUser;
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const user = auth.currentUser;
+
+  useEffect(() => {
+    document.body.style.overflow = drawerOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [drawerOpen]);
+
+  const drawerItems = [
+    { icon: <FaFileAlt />, label: "Resume Builder" },
+    { icon: <FaBriefcase />, label: "Job Portal" },
+    { icon: <FaBrain />, label: "Aptitude Quiz" },
+    { icon: <FaBullseye />, label: "Interview Prep" },
+    { icon: <FaStickyNote />, label: "Notes Hub" },
+    { icon: <FaUser />, label: "Profile" },
+    { icon: <FaClipboardList />, label: "Applications" },
+    { icon: <FaCog />, label: "Settings" }
+  ];
+
   return (
     <div className="dashboard">
 
@@ -104,43 +123,104 @@ function Dashboard() {
       <main className="main-content">
 
         <div className="topbar">
+          <button
+            className="drawer-toggle"
+            type="button"
+            aria-label="Open menu"
+            onClick={() => setDrawerOpen(true)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
 
-   <div className="search-box">
-    <FaSearch className="search-icon" />
+          <div className="topbar-logo">🚀Career Hub</div>
 
-    <input
-      type="text"
-      placeholder="Search anything..."
-    />
-  </div>
+          <div className="search-box desktop-search">
+            <FaSearch className="search-icon" />
 
-  <div className="profile-box"></div>
+            <input
+              type="text"
+              placeholder="Search anything..."
+            />
+          </div>
 
-     <div className="profile-box">
+          <button
+            className="mobile-search-toggle"
+            type="button"
+            aria-label="Search"
+            onClick={() => setMobileSearchOpen((prev) => !prev)}
+          >
+            <FaSearch />
+          </button>
 
-     <img
-      src={
-      user?.photoURL ||
-      "https://i.pravatar.cc/150?img=12"
-    }
-    alt="profile"
-  />
+          <div className="topbar-right">
+            <button className="notification" type="button" aria-label="Show notifications">
+              <FaBell />
+            </button>
 
-  <div className="profile-info">
-    <h4>
-      Hi, {user?.displayName || "User"}
-    </h4>
+            <div className="profile-box">
+              <img
+                src={
+                  user?.photoURL ||
+                  "https://i.pravatar.cc/150?img=12"
+                }
+                alt="profile"
+              />
 
-    <p>
-      {user?.email}
-    </p>
-  </div>
+              <div className="profile-info">
+                <h4>
+                  Hi, {user?.displayName || "User"}
+                </h4>
 
-  <FaChevronDown className="down-icon" />
+                <p>
+                  {user?.email}
+                </p>
+              </div>
 
-</div>
+              <FaChevronDown className="down-icon" />
+            </div>
+          </div>
         </div>
-        
+
+        {mobileSearchOpen && (
+          <div className="mobile-search-panel">
+            <div className="search-box mobile-search">
+              <FaSearch className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search anything..."
+              />
+            </div>
+          </div>
+        )}
+
+        <div className={`dashboard-drawer ${drawerOpen ? "open" : ""}`}>
+          <div className="drawer-header">
+            <div className="drawer-brand">Career Hub</div>
+            <button
+              type="button"
+              className="drawer-close"
+              aria-label="Close menu"
+              onClick={() => setDrawerOpen(false)}
+            >
+              ×
+            </button>
+          </div>
+          <ul className="drawer-menu">
+            {drawerItems.map((item) => (
+              <li key={item.label} onClick={() => setDrawerOpen(false)}>
+                <span className="drawer-icon">{item.icon}</span>
+                <span>{item.label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div
+          className={`drawer-overlay ${drawerOpen ? "active" : ""}`}
+          onClick={() => setDrawerOpen(false)}
+        />
 
         <div className="hero-banner">
 
